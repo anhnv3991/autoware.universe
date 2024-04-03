@@ -15329,10 +15329,17 @@ If the ego vehicle velocity is smaller than <code>stuck_detection.velocity</code
 </thead>
 <tbody>
 <tr>
-<td align="left"><code>enable_collision_check_at_prepare_phase</code></td>
+<td align="left"><code>enable_collision_check_for_prepare_phase.general_lanes</code></td>
 <td>[-]</td>
 <td>boolean</td>
-<td>Perform collision check starting from prepare phase. If <code>false</code>, collision check only evaluated for lane changing phase.</td>
+<td>Perform collision check starting from the prepare phase for situations not explicitly covered by other settings (e.g., intersections). If <code>false</code>, collision check only evaluated for lane changing phase.</td>
+<td>false</td>
+</tr>
+<tr>
+<td align="left"><code>enable_collision_check_for_prepare_phase.intersection</code></td>
+<td>[-]</td>
+<td>boolean</td>
+<td>Perform collision check starting from prepare phase when ego is in intersection. If <code>false</code>, collision check only evaluated for lane changing phase.</td>
 <td>false</td>
 </tr>
 <tr>
