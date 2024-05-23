@@ -90,7 +90,39 @@ std::map<std::string, PCDFileMetadata> PointCloudMapLoaderNode::getPCDMetadata(
 {
   if (fs::exists(pcd_metadata_path)) {
     auto pcd_metadata_dict = loadPCDMetadata(pcd_metadata_path);
+
+    // File warning messages if there are differences between the metadata and the pcd paths
+    // Inefficient, as the pcd_paths are examined twice
+    std::unordered_set<std::string> set_pcd_paths;
+
+    for (const auto& path : pcd_paths)
+    {
+      auto fname = path.substr(path.rfind("/") + 1);
+
+      set_pcd_paths.insert(fname);
+
+      if (pcd_metadata_dict.find(fname) == pcd_metadata_dict.end())
+      {
+        std::ostringstream message;
+
+        message << "Warning: File " << path << " was not found in the segmentation grid." << std::endl;
+        RCLCPP_WARN_STREAM(get_logger(), message.str());    
+      }
+    }
+
+    for (auto& it : pcd_metadata_dict)
+    {
+      if (set_pcd_paths.find(it.first) == set_pcd_paths.end())
+      {
+        std::ostringstream message;
+        
+        message << "Warning: Segment " << it.first << " was not found from the pcd paths." << std::endl;
+        RCLCPP_WARN_STREAM(get_logger(), message.str());
+      }  
+    }
+
     pcd_metadata_dict = replaceWithAbsolutePath(pcd_metadata_dict, pcd_paths);
+
     return pcd_metadata_dict;
   } else if (pcd_paths.size() == 1) {
     // An exception when using a single file PCD map so that the users do not have to provide
@@ -108,6 +140,7 @@ std::map<std::string, PCDFileMetadata> PointCloudMapLoaderNode::getPCDMetadata(
     return std::map<std::string, PCDFileMetadata>{{pcd_path, metadata}};
   } else {
     throw std::runtime_error("PCD metadata file not found: " + pcd_metadata_path);
+    // Shall we perform a segmentation here?
   }
 }
 
