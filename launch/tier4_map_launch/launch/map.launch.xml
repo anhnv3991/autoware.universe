@@ -15,7 +15,7 @@
   <arg name="use_intra_process" default="false"/>
 
   <!-- select container type -->
-  <arg name="use_multithread" default="false"/>
+  <arg name="use_multithread" default="true"/>
   <let name="container_type" value="component_container" unless="$(var use_multithread)"/>
   <let name="container_type" value="component_container_mt" if="$(var use_multithread)"/>
 

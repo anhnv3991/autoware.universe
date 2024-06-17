@@ -62,6 +62,8 @@ void MapUpdateModule::callback_timer(
     return;
   }
 
+  std::ofstream test("/home/anh/Work/autoware/wait_time.txt", std::ios::app);
+
   // check is_set_last_update_position
   const bool is_set_last_update_position = (position != std::nullopt);
   diagnostics_ptr->add_key_value("is_set_last_update_position", is_set_last_update_position);
@@ -75,7 +77,12 @@ void MapUpdateModule::callback_timer(
   }
 
   if (should_update_map(position.value(), diagnostics_ptr)) {
+    test << "Update" << std::endl;
     update_map(position.value(), diagnostics_ptr);
+  }
+  else
+  {
+    test << "Skip" << std::endl;
   }
 }
 
@@ -208,6 +215,8 @@ bool MapUpdateModule::update_ndt(
     return false;
   }
 
+  auto wait_start_time = std::chrono::system_clock::now();
+
   // send a request to map_loader
   auto result{pcd_loader_client_->async_send_request(
     request,
@@ -227,6 +236,13 @@ bool MapUpdateModule::update_ndt(
     }
     status = result.wait_for(std::chrono::seconds(1));
   }
+
+  auto wait_end_time = std::chrono::system_clock::now();
+
+  std::ofstream test("/home/anh/Work/autoware/wait_time.txt", std::ios::app);
+
+  test << std::chrono::duration_cast<std::chrono::microseconds>(wait_end_time - wait_start_time).count() << std::endl;
+
   diagnostics_ptr->add_key_value("is_succeed_call_pcd_loader", true);
 
   auto & maps_to_add = result.get()->new_pointcloud_with_ids;
